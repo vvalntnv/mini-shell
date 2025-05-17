@@ -1,0 +1,70 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Iinclude",
+      "-g",
+      "-c",
+      "-o",
+      "build/main.o",
+      "src/main.c"
+    ],
+    "directory": "/home/viktor/development/system-cool/mini-shell",
+    "file": "/home/viktor/development/system-cool/mini-shell/src/main.c",
+    "output": "/home/viktor/development/system-cool/mini-shell/build/main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Iinclude",
+      "-g",
+      "-c",
+      "-o",
+      "build/parser.o",
+      "src/parser.c"
+    ],
+    "directory": "/home/viktor/development/system-cool/mini-shell",
+    "file": "/home/viktor/development/system-cool/mini-shell/src/parser.c",
+    "output": "/home/viktor/development/system-cool/mini-shell/build/parser.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Iinclude",
+      "-g",
+      "-c",
+      "-o",
+      "build/shell.o",
+      "src/shell.c"
+    ],
+    "directory": "/home/viktor/development/system-cool/mini-shell",
+    "file": "/home/viktor/development/system-cool/mini-shell/src/shell.c",
+    "output": "/home/viktor/development/system-cool/mini-shell/build/shell.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Iinclude",
+      "-g",
+      "-c",
+      "-o",
+      "build/utils.o",
+      "src/utils.c"
+    ],
+    "directory": "/home/viktor/development/system-cool/mini-shell",
+    "file": "/home/viktor/development/system-cool/mini-shell/src/utils.c",
+    "output": "/home/viktor/development/system-cool/mini-shell/build/utils.o"
+  }
+]
