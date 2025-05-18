@@ -14,4 +14,6 @@ typedef enum {
 int handle_builtin(char **args);
 void execute_external(char **args);
 
+void sigint_handler(int signo);
+
 #endif

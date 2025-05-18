@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "shell.h"
+#include "signal_handling.h"
 #include <readline/readline.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,6 +9,8 @@
 #include <unistd.h>
 
 int main() {
+  setup_signal_handling();
+
   while (1) {
     char *input = readline("viki-shell> ");
     if (!input)

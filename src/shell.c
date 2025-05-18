@@ -1,4 +1,6 @@
 #include "shell.h"
+#include "signal_handling.h"
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,6 +15,11 @@ typedef struct {
 static const BuiltinEntry builtin_commands[] = {
     {CMD_CHANGE_DIR, "cd"},
     {CMD_EXIT, "exit"},
+};
+
+static const int signals_to_remove_in_child[] = {
+    SIGTERM,
+    SIGCHLD,
 };
 
 HandledCommands match_command(char *command) {
@@ -53,9 +60,10 @@ void execute_external(char **args) {
   int process = fork();
 
   if (process == 0) {
+    remove_signal_handling((int *)signals_to_remove_in_child, 1);
     execvp(args[0], args);
-    perror("Child process failed to execute");
-    return;
+    perror("Child process failed to execute\n");
+    exit(1);
   }
 
   int status;
