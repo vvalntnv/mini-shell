@@ -1,6 +1,7 @@
 #include "shell.h"
 #include "signal_handling.h"
 #include <signal.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -56,14 +57,48 @@ int handle_builtin(char **args) {
   return 0;
 }
 
+/**
+ * @brief Must be from a NULL terminated Array
+ */
+size_t get_array_count(void *const *args) {
+  if (args == NULL || args[0] == NULL) {
+    return 0;
+  }
+
+  size_t count = 1;
+  while (args[count] != NULL) {
+    count++;
+  }
+  return count;
+}
+
 void execute_external(char **args) {
   int process = fork();
+  int is_background = 0;
+  size_t last_element_index = get_array_count((void *)args) - 1;
+
+  // Sanitize whitespace someday
+  if (strcmp(args[last_element_index], "&") == 0) {
+    is_background = 1;
+    args[last_element_index] = NULL;
+  }
+
+  if (process < 0) {
+    perror("FORK FAILED :(");
+  }
 
   if (process == 0) {
     remove_signal_handling((int *)signals_to_remove_in_child, 1);
+    // set the default signal handler
+    signal(SIGINT, SIG_DFL);
     execvp(args[0], args);
     perror("Child process failed to execute\n");
     exit(1);
+  }
+
+  if (is_background) {
+    printf("Process running in the background, with id: %d :)\n", process);
+    return;
   }
 
   int status;
