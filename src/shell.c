@@ -73,7 +73,6 @@ size_t get_array_count(void *const *args) {
 }
 
 void execute_external(char **args) {
-  int process = fork();
   int is_background = 0;
   size_t last_element_index = get_array_count((void *)args) - 1;
 
@@ -83,6 +82,7 @@ void execute_external(char **args) {
     args[last_element_index] = NULL;
   }
 
+  int process = fork();
   if (process < 0) {
     perror("FORK FAILED :(");
   }
@@ -110,6 +110,6 @@ void execute_external(char **args) {
       printf("Child process exited with status: %d\n", code);
     }
   } else if (WIFSIGNALED(status)) {
-    printf("Child process terminated with a signal: %d", WTERMSIG(status));
+    printf("Child process terminated with a signal: %d\n", WTERMSIG(status));
   }
 }
