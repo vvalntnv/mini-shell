@@ -1,8 +1,8 @@
 #include "signal_handling.h"
+#include <stdio.h>
 #include <readline/readline.h>
 #include <signal.h>
 #include <stddef.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
 
@@ -30,6 +30,7 @@ void sigchld_handler(int signal __attribute__((unused))) {
 void setup_signal_handling() {
   signal(SIGINT, sigint_handler);
   signal(SIGTSTP, SIG_IGN);
+  signal(SIGTTOU, SIG_IGN);
   signal(SIGCHLD, sigchld_handler);
 }
 

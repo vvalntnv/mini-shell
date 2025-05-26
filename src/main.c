@@ -1,14 +1,18 @@
 #include "parser.h"
 #include "shell.h"
 #include "signal_handling.h"
-#include <readline/readline.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <readline/readline.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 int main() {
+  pid_t shell_pgid = getpid();
+  setpgid(shell_pgid, shell_pgid);
+  tcsetpgrp(STDIN_FILENO, shell_pgid);
+
   setup_signal_handling();
 
   while (1) {

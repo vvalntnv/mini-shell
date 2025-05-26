@@ -21,6 +21,8 @@ static const BuiltinEntry builtin_commands[] = {
 static const int signals_to_remove_in_child[] = {
     SIGTERM,
     SIGCHLD,
+    SIGINT,
+    SIGTSTP
 };
 
 HandledCommands match_command(char *command) {
@@ -82,27 +84,31 @@ void execute_external(char **args) {
     args[last_element_index] = NULL;
   }
 
-  int process = fork();
-  if (process < 0) {
+  int process_id = fork();
+  if (process_id < 0) {
     perror("FORK FAILED :(");
   }
 
-  if (process == 0) {
+  if (process_id == 0) {
+    // Create a new process group with the same id
+    setpgid(0, 0);
     remove_signal_handling((int *)signals_to_remove_in_child, 1);
-    // set the default signal handler
-    signal(SIGINT, SIG_DFL);
     execvp(args[0], args);
     perror("Child process failed to execute\n");
     exit(1);
   }
 
   if (is_background) {
-    printf("Process running in the background, with id: %d :)\n", process);
+    printf("Process running in the background, with id: %d :)\n", process_id);
     return;
   }
 
   int status;
-  waitpid(process, &status, 0);
+  setpgid(process_id, process_id);
+
+  tcsetpgrp(STDIN_FILENO, process_id);
+  waitpid(process_id, &status, 0);
+  tcsetpgrp(STDIN_FILENO, getpid());
 
   if (WIFEXITED(status)) {
     int code = WEXITSTATUS(status);
