@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "jobs.h"
 #include "shell.h"
 #include "signal_handling.h"
 #include <stdio.h>
@@ -7,6 +8,11 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
+#define MAX_JOBS_COUNT 100
+
+Job *jobs_map = NULL;
+int jobs_count = 0;
 
 int main() {
   pid_t shell_pgid = getpid();
