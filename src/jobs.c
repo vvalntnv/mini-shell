@@ -2,61 +2,90 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void list_jobs(Job *job_map, int job_count) {
-  if (job_map == NULL) {
-    return;
+Job *job_map = NULL;
+unsigned int jobs_count = 0;
+unsigned int map_size = 0;
+
+const char *JobTypeStrings[] = {"RUNNING", "STOPPED"};
+
+const int JOB_STATUS_COUNT = 2;
+
+enum {
+  JOB_OK = 0,
+  JOB_FULL = 1,
+  JOB_OOM = 2,
+  JOB_IDINV = 3,
+  JOB_INVSTATUS = 4
+};
+
+void list_jobs() {
+  printf("-------JOBS---------\n");
+  // foreach over all jobs and then display them and their status
+
+  if (job_map == NULL || jobs_count == 0) {
+    goto end_statement;
   }
 
-  printf("---------JOBS---------\n");
-  for (int i = 0; i < job_count; i++) {
+  for (unsigned int i = 0; i < jobs_count; i++) {
+    const char *current_status_verbose;
     Job *current_job = &job_map[i];
+    current_status_verbose = JobTypeStrings[current_job->status];
 
-    const char *job_status_verbose;
-    if (current_job->status >= 0 && current_job->status < JOB_STATUS_COUNT) {
-      job_status_verbose = JobTypeStrings[current_job->status];
-    } else {
-      job_status_verbose = "UNKNOWN";
-    }
-
-    printf("[%d] %s - %s\n", current_job->job_id, job_status_verbose,
+    printf("[%s] %u - %s\n", current_status_verbose, current_job->job_id,
            current_job->command);
   }
 
-  printf("---------END-----------\n");
+end_statement:
+  printf("---------------------\n");
 }
 
-Job *register_job(Job job, Job *current_job_map, int *job_count) {
-  if (job_count == NULL) {
-    fprintf(stderr, "The jobs count cannot be NULL\n");
-    return NULL;
+/**
+ * Registers a job into the job table
+ * It checks if there are available spaces in the job tables and adds one
+ *
+ * If no space is available, the function returns 1, if everything is ok, the
+ * func returns 0, and if an error occured, it returns -1
+ */
+int register_job(const Job *job) {
+  if (jobs_count >= MAX_JOBS_COUNT) {
+    return JOB_FULL;
   }
 
-  if (current_job_map == NULL && *job_count != 0) {
-    fprintf(stderr, "current_job_map is NULL, but size is more than 0!\n");
-    return NULL;
+  job_id_t job_id = jobs_count;
+
+  if (jobs_count == map_size) {
+    unsigned int new_cap = map_size ? map_size * 2 : INITIAL_SIZE;
+    if (new_cap > MAX_JOBS_COUNT) {
+      new_cap = MAX_JOBS_COUNT;
+    }
+
+    Job *temp_pointer = realloc(job_map, sizeof(Job) * new_cap);
+
+    if (temp_pointer == NULL) {
+      perror("Failed to reallocate");
+      return JOB_OOM;
+    }
+
+    map_size = new_cap;
+    job_map = temp_pointer;
   }
+  job_map[job_id] = *job;
+  job_map[job_id].job_id = job_id;
+  jobs_count++;
 
-  int new_count = (*job_count) + 1;
-  Job *new_map = (Job *)realloc(current_job_map, (sizeof(Job) * new_count));
-
-  if (new_map == NULL) {
-    perror("register_job: FAILED ALLOCATION\n");
-    return NULL;
-  }
-
-  new_map[new_count - 1] = job;
-  *job_count = new_count;
-  return new_map;
+  return JOB_OK;
 }
 
-void free_map(Job *jobs_map, int jobs_count) {
-  if (jobs_map == NULL) {
-    return;
+int change_job_status(job_id_t job_id, JobStatus status) {
+  if (!job_map || job_id >= jobs_count) {
+    return JOB_IDINV;
   }
 
-  for (int i = 0; i < jobs_count; i++) {
-    free(jobs_map[i].command);
+  if (status < 0) {
+    return JOB_INVSTATUS;
   }
 
-  free(jobs_map);
+  job_map[job_id].status = status;
+
+  return JOB_OK;
 }

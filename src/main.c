@@ -11,9 +11,6 @@
 
 #define MAX_JOBS_COUNT 100
 
-Job *jobs_map = NULL;
-int jobs_count = 0;
-
 int main() {
   pid_t shell_pgid = getpid();
   setpgid(shell_pgid, shell_pgid);

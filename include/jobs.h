@@ -1,28 +1,35 @@
+#include <stdint.h>
+
 #ifndef JOBS_H
 #define JOBS_H
+#define MAX_JOBS_COUNT 100
+#define INITIAL_SIZE 10
 
 #include <signal.h>
+
+typedef uint8_t job_id_t;
+
 typedef enum JobType {
   JOB_RUNNING,
   JOB_STOPPED
 } JobStatus;
 
-const char* JobTypeStrings[] = {
-  "RUNNING",
-  "STOPPED"
-};
-
-const int JOB_STATUS_COUNT = 2; 
+extern const char* JobTypeStrings[];
+extern const int JOB_STATUS_COUNT; 
 
 typedef struct Job {
-  int job_id;
+  job_id_t job_id;
   pid_t pgid;
   char *command;
   JobStatus status;
 } Job;
 
-void list_jobs(Job *job_map, int job_count);
-Job *register_job(Job job, Job *current_job_map, int *job_count);
+void list_jobs();
+int register_job(const Job *job);
+int change_job_status(job_id_t job_id, JobStatus status);
 
-void free_map(Job *jobs_map, int jobs_count);
+void free_map();
+
+extern Job *job_map;
+extern unsigned int jobs_count;
 #endif

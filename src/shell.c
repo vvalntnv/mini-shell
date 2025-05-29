@@ -1,4 +1,5 @@
 #include "shell.h"
+#include "jobs.h"
 #include "signal_handling.h"
 #include <signal.h>
 #include <stddef.h>
@@ -16,14 +17,11 @@ typedef struct {
 static const BuiltinEntry builtin_commands[] = {
     {CMD_CHANGE_DIR, "cd"},
     {CMD_EXIT, "exit"},
+    {CMD_LS_JOBS, "jobs"},
 };
 
-static const int signals_to_remove_in_child[] = {
-    SIGTERM,
-    SIGCHLD,
-    SIGINT,
-    SIGTSTP
-};
+static const int signals_to_remove_in_child[] = {SIGTERM, SIGCHLD, SIGINT,
+                                                 SIGTSTP};
 
 HandledCommands match_command(char *command) {
   int iterations_amount = sizeof(builtin_commands) / sizeof(BuiltinEntry);
@@ -47,16 +45,23 @@ int handle_builtin(char **args) {
       chdir(args[1]);
     else
       perror("CD HAD NO ARGUMENTS \n");
-    return 1;
+    break;
 
   case CMD_EXIT:
     exit(0);
+
+  case CMD_LS_JOBS:
+    list_jobs();
+    break;
 
   case CMD_UNKNOWN:
     return 0; // not a built-in
   }
 
-  return 0;
+  Job job = {0, 0, args[0], JOB_RUNNING};
+  register_job(&job);
+
+  return 1;
 }
 
 /**

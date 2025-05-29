@@ -4,6 +4,7 @@
 typedef enum {
   CMD_CHANGE_DIR,
   CMD_EXIT,
+  CMD_LS_JOBS,
   CMD_UNKNOWN,
 } HandledCommands;
 
