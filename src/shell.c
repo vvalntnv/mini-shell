@@ -1,4 +1,5 @@
 #include "shell.h"
+#include "debug.h"
 #include "jobs.h"
 #include "signal_handling.h"
 #include <signal.h>
@@ -51,6 +52,7 @@ int handle_builtin(char **args) {
     exit(0);
 
   case CMD_LS_JOBS:
+    print_data(STRING, args, NULL);
     list_jobs();
     break;
 
